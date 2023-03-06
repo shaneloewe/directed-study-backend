@@ -1,17 +1,20 @@
-from http.server import BaseHTTPRequestHandler
-from urllib import parse
+from flask import Flask, jsonify
+from flask_cors import CORS
 
 
-class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        s = self.path
-        dic = dict(parse.parse_qsl(parse.urlsplit(s).query))
-        self.send_response(200)
-        self.send_header('Content-type', 'text/plain')
-        self.end_headers()
-        if "name" in dic:
-            message = "Hello, " + dic["name"] + "!"
-        else:
-            message = "Hello, stranger!"
-        self.wfile.write(message.encode())
-        return
+app = Flask(__name__)
+CORS(app)
+
+
+@app.route('/<name>')
+def about(name):
+    return jsonify({'message': f'Hello{name}'})
+
+
+@app.route('/about')
+def about():
+    return jsonify({'message': 'Hello from serverless Flask!'})
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
