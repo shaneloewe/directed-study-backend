@@ -1,14 +1,89 @@
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS
+import json
+from queries import *
+from dbInsert import update_progress, db_insert
+import config
+from urllib.parse import unquote
+
+# The user data is going to be stored in a database
+# For any given page, we want to be able to access the
+# necessary user information that the page needs.
 
 
 app = Flask(__name__)
 CORS(app)
 
+# Called in: Home page
 
-@app.route('/<name>')
-def about(name):
-    return jsonify({'message': f'Hello{name}'})
+
+@app.route('/<userEmail>')
+def home(userEmail):
+    # Check to see if Email exists in database
+    # print("This is our Database:")
+    # print(return_all())
+    # print()
+    # print("This is the userEmail we got passed: "+str(userEmail))
+    userStatus = get_userid(str(userEmail))
+    # print("Just ran the get_userId Function")
+    # print("User Status: "+str(userStatus))
+    if userStatus == False:
+        # print("User not found. Adding user to Database?")
+        db_insert(str(userEmail))
+    return ""
+
+    # data = {'userId': user_id}
+    # print("DATA!: "+data['userId'])
+    # return json.dumps(data)
+
+
+@app.route('/dictionary/<userEmail>')
+def getDict(userEmail):
+    userDict = get_userdict(str(userEmail))
+    for item in userDict:
+        print(item)
+    return jsonify({'dictionary': userDict})
+
+    # data = {'userId': user_id}
+    # print("DATA!: "+data['userId'])
+    # return json.dumps(data)
+
+
+@app.route('/profile/<userEmail>')
+def getStats(userEmail):
+    userStats = get_profile_stats(str(userEmail))
+    for item in userStats:
+        print(item)
+    return jsonify({'progress': userStats})
+
+
+@app.route('/sentence/<userEmail>')
+def getSentence(userEmail):
+    userLevel = get_userLevel(str(userEmail))
+    word = get_word(userLevel)
+    sentences = get_sentence(word, userLevel)
+    # print(type(sentences))
+    print("This is the sentence Dictionary: "+str(sentences))
+    print("Type of 'sentences': "+str(type(sentences)))
+    for sentence in sentences:
+        print(str(sentence))
+    return jsonify({'sentences': sentences, 'word': word})
+
+    # data = {'userId': user_id}
+    # print("DATA!: "+data['userId'])
+    # return json.dumps(data)
+
+# Called in: About page
+
+
+@app.route('/correct_answer')
+def correctAnswer():
+    userEmail = request.args.get('userEmail')
+    word = unquote(request.args.get('word'))
+    print(userEmail)
+    print(word)
+    update_progress(userEmail, word)
+    return ""
 
 
 @app.route('/about')
@@ -17,4 +92,4 @@ def about():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run
