@@ -1,5 +1,4 @@
 # Get the database using the method we defined in pymongo_test_insert file
-from dateutil import parser
 from dbGet import get_database
 
 

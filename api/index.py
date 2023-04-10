@@ -16,6 +16,8 @@ CORS(app)
 
 # Called in: Home page
 
+currentUser = None
+
 
 @app.route('/<userEmail>')
 def home(userEmail):
@@ -30,6 +32,7 @@ def home(userEmail):
     if userStatus == False:
         # print("User not found. Adding user to Database?")
         db_insert(str(userEmail))
+
     return ""
 
     # data = {'userId': user_id}
@@ -61,13 +64,14 @@ def getStats(userEmail):
 def getSentence(userEmail):
     userLevel = get_userLevel(str(userEmail))
     word = get_word(userLevel)
-    sentences = get_sentence(word, userLevel)
+    sentences = get_sentences(word, userLevel)
+    packagedSentences = multipleChoicePick(sentences, 3)
     # print(type(sentences))
-    print("This is the sentence Dictionary: "+str(sentences))
-    print("Type of 'sentences': "+str(type(sentences)))
-    for sentence in sentences:
+    print("This is the sentence Dictionary: "+str(packagedSentences))
+    print("Type of 'sentences': "+str(type(packagedSentences)))
+    for sentence in packagedSentences:
         print(str(sentence))
-    return jsonify({'sentences': sentences, 'word': word})
+    return jsonify({'sentences': packagedSentences, 'word': word})
 
     # data = {'userId': user_id}
     # print("DATA!: "+data['userId'])
@@ -84,6 +88,17 @@ def correctAnswer():
     print(word)
     update_progress(userEmail, word)
     return ""
+
+
+@app.route('/builder/<userEmail>')
+def sentenceBuilder(userEmail):
+    userLevel = get_userLevel(str(userEmail))
+    word = get_word(userLevel)
+    sentences = get_sentences(word, userLevel)
+    packagedSentences = multipleChoicePick(sentences, 1)
+    # Now split the sentence into a bunch of words
+    arrOfNodes = splitSentence(packagedSentences)
+    return jsonify({'sentence': packagedSentences, 'nodes': arrOfNodes, 'word': word})
 
 
 @app.route('/about')

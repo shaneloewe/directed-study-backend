@@ -77,10 +77,47 @@ def get_word(userLevel):
             counter += 1
 
 
-def get_sentence(word, userLevel):
+def multipleChoicePick(sentencesContainingWord, numOfSentencesToPick):
+    packagedSentences = []
+    # Pick # sentences
+    if len(sentencesContainingWord) >= numOfSentencesToPick:
+        packagedSentences = rand.sample(
+            sentencesContainingWord, numOfSentencesToPick)
+    else:
+        print()
+        print("We don't have enough sentences to make that request")
+        print()
+    print("Here are the words we selected: ")
+    for sentence in packagedSentences:
+        sentence['_id'] = str(sentence['_id'])
+        print(sentence)
+    print()
+    return packagedSentences
+
+
+def splitSentence(packagedSentences):
+    arrOfNodeData = []
+    for sentence in packagedSentences:
+        print(len(sentence.get("hanzi")))
+        for i in range(len(sentence.get("hanzi"))):
+            nodeX = rand.randint(0, 300)
+            nodeY = rand.randint(0, 300)
+            singleNode = {"id": "", "type": "customNode",
+                          "data": {}, "position": {}, "width": 70, "height": 70}
+            singleNode["id"] = i+1
+            singleNode["data"] = {0: sentence.get("hanzi")[i]}
+            singleNode["position"] = {"x": nodeX, "y": nodeY}
+            print('Hanzi: '+sentence.get("hanzi")
+                  [i]+", X: "+str(nodeX)+" Y: "+str(nodeY)+", singleNode: "+str(singleNode))
+            arrOfNodeData.append(singleNode)
+        print(arrOfNodeData)
+    return arrOfNodeData
+
+
+def get_sentences(word, userLevel):
     print()
     print("Inside GetSentence")
-    print("Here's the word we've selected: "+word)
+    print("Here's the word we've selected: "+str(word))
     print("Here's the userLevel: "+str(userLevel))
     print()
     wenevrdb = get_database()
@@ -96,21 +133,8 @@ def get_sentence(word, userLevel):
     for sentence in sentenceQuery:
         print(sentence)
         sentencesContainingWord.append(sentence)
-
-    packagedSentences = []
-    # Pick 3 sentences
-    if len(sentencesContainingWord) >= 3:
-        packagedSentences = rand.sample(sentencesContainingWord, 3)
-    else:
-        print()
-        print("We don't have enough sentences to make that request")
-        print()
-    print("Here are the 3 words we selected: ")
-    for sentence in packagedSentences:
-        sentence['_id'] = str(sentence['_id'])
-        print(sentence)
-    print()
-    return packagedSentences
+    returnSentences = multipleChoicePick(sentencesContainingWord, 3)
+    return returnSentences
 
 
 def return_all():
