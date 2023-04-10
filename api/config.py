@@ -1,1 +1,1 @@
-currentUser = None
+currentUser = []
