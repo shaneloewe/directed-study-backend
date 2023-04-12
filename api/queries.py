@@ -99,16 +99,23 @@ def splitSentence(packagedSentences):
     arrOfNodeData = []
     for sentence in packagedSentences:
         print(len(sentence.get("hanzi")))
+        usedVariation = list(range(0, len(sentence.get("hanzi"))))
+        print(usedVariation)
         for i in range(len(sentence.get("hanzi"))):
-            nodeX = rand.randint(0, 300)
-            nodeY = rand.randint(0, 300)
+            variateX = rand.randint(0, 50)
+            variateY = rand.randint(0, 200)
+            placement = usedVariation.pop(
+                rand.randrange(len(usedVariation)))
+            print(placement)
+            print(usedVariation)
             singleNode = {"id": "", "type": "customNode",
                           "data": {}, "position": {}, "width": 70, "height": 70}
             singleNode["id"] = i+1
             singleNode["data"] = {0: sentence.get("hanzi")[i]}
-            singleNode["position"] = {"x": nodeX, "y": nodeY}
+            singleNode["position"] = {
+                "x": 100+(placement*70)+variateX, "y": 200+variateY}
             print('Hanzi: '+sentence.get("hanzi")
-                  [i]+", X: "+str(nodeX)+" Y: "+str(nodeY)+", singleNode: "+str(singleNode))
+                  [i]+", X: "+str(variateX)+" Y: "+str(variateY)+", singleNode: "+str(singleNode))
             arrOfNodeData.append(singleNode)
         print(arrOfNodeData)
     return arrOfNodeData
