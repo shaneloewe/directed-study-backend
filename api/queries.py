@@ -44,8 +44,12 @@ def get_profile_stats(userEmail):
     collections = wenevrdb.list_collection_names()
     users = wenevrdb["users"]
     userQuery = wenevrdb.users.find({"email": userEmail})
+    stats = {"progress": {}, "correct": {}, "incorrect": {}}
     for u in userQuery:
-        return u['progress']
+        stats['progress'] = u['stats']['progress']
+        stats['correct'] = u['stats']['correct']
+        stats['incorrect'] = u['stats']['incorrect']
+    return stats
 
 
 def get_userLevel(userEmail):
@@ -75,6 +79,20 @@ def get_word(userLevel):
             return word['hanzi']
         else:
             counter += 1
+
+
+def check_word(word):
+    wenevrdb = get_database()
+    collections = wenevrdb.list_collection_names()
+    words = wenevrdb["words"]
+    wordQuery = wenevrdb.words.find({"hanzi": word})
+    print(wordQuery)
+    print(word)
+    if wordQuery != None:
+        for w in wordQuery:
+            return w
+    else:
+        return
 
 
 def multipleChoicePick(sentencesContainingWord, numOfSentencesToPick):
@@ -147,15 +165,16 @@ def get_sentences(word, userLevel):
 def return_all():
     # Get the database using the method we defined in pymongo_test_insert file
     wenevrdb = get_database()
-
     collections = wenevrdb.list_collection_names()
-    print("collections: ", collections, "\n")
-
-    users = wenevrdb["users"]
-    userQuery = wenevrdb.users.find()
-    for item in userQuery:
-        print(item)
-    return ""
+    words = wenevrdb["words"]
+    wordsQuery = wenevrdb.words.find()
+    print(wordsQuery)
+    wordList = []
+    for item in wordsQuery:
+        print(type(item['_id']))
+        item['_id'] = str(item['_id'])
+        wordList.append(item)
+    return wordList
     # Note that this is the Global currentUser var
 
     # for atr in config.currentUser:

@@ -10,9 +10,9 @@ def db_insert(userEmail):
 
     new_user = {
         "email": userEmail,
-        "level": 0,
+        "level": 1,
         "dictionary": {"foo": "bar", "boo": "nar"},
-        "progress": {}
+        "stats": {"progress": {}, "correct": 0, "incorrect": 0}
     }
     users.insert_one(new_user)
 
@@ -29,7 +29,10 @@ def update_progress(userEmail, word):
         activeUser = user
 
     # currentProgress = {"汉字": int, ...}
-    currentProgress = activeUser['progress']
+    currentStats = activeUser['stats']
+    currentProgress = currentStats['progress']
+    currentCorrect = currentStats['correct']
+    currentIncorrect = currentStats['incorrect']
     newProgress = 0
     if word in currentProgress:
         wordProgress = currentProgress[word]
@@ -38,6 +41,39 @@ def update_progress(userEmail, word):
     else:
         newProgress += 1
     currentProgress.update({word: newProgress})
-    valueToUpdate = {"$set": {"progress": currentProgress}}
+    currentCorrect += 1
+    newStats = {"progress": currentProgress,
+                "correct": currentCorrect, "incorrect": currentIncorrect}
+    valueToUpdate = {"$set": {"stats": newStats}}
 
     users.update_one(queryByEmail, valueToUpdate)
+
+
+def add_to_incorrect(userEmail):
+    wenevrdb = get_database()
+    users = wenevrdb["users"]
+    queryByEmail = {"email": userEmail}
+    userQuery = wenevrdb.users.find(queryByEmail)
+    activeUser = {}
+    for user in userQuery:
+        print(user)
+        activeUser = user
+
+    currentStats = activeUser['stats']
+    currentProgress = currentStats['progress']
+    currentCorrect = currentStats['correct']
+    print("USER")
+    print(currentStats)
+    currentIncorrect = currentStats['incorrect']  # returns int count.
+    print("current incorrect")
+    print(currentIncorrect)
+    currentIncorrect += 1
+    currentStats['incorrect'] = currentIncorrect
+    print("new incorrect")
+    print(currentIncorrect)
+    newStats = {"progress": currentProgress,
+                "correct": currentCorrect, "incorrect": currentIncorrect}
+    valueToUpdate = {"$set": {"stats": newStats}}
+
+    users.update_one(queryByEmail, valueToUpdate)
+    return

@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
 from queries import *
-from dbInsert import update_progress, db_insert
+from dbInsert import update_progress, db_insert, add_to_incorrect
 import config
 from urllib.parse import unquote
 
@@ -57,7 +57,7 @@ def getStats(userEmail):
     userStats = get_profile_stats(str(userEmail))
     for item in userStats:
         print(item)
-    return jsonify({'progress': userStats})
+    return jsonify({'stats': userStats})
 
 
 @app.route('/sentence/<userEmail>')
@@ -90,6 +90,13 @@ def correctAnswer():
     return ""
 
 
+@app.route('/incorrect_answer/<userEmail>')
+def incorrectAnswer(userEmail):
+    print(userEmail)
+    add_to_incorrect(userEmail)
+    return ""
+
+
 @app.route('/builder/<userEmail>')
 def sentenceBuilder(userEmail):
     userLevel = get_userLevel(str(userEmail))
@@ -98,7 +105,14 @@ def sentenceBuilder(userEmail):
     packagedSentences = multipleChoicePick(sentences, 1)
     # Now split the sentence into a bunch of words
     arrOfNodes = splitSentence(packagedSentences)
-    return jsonify({'sentence': packagedSentences, 'nodes': arrOfNodes, 'word': word})
+    wordList = return_all()
+    return jsonify({'sentence': packagedSentences, 'nodes': arrOfNodes, 'word': word, 'words': wordList})
+
+
+@app.route('/isWord/<word>')
+def isWord(word):
+    foundWord = check_word(word)
+    return jsonify({'foundWord': foundWord})
 
 
 @app.route('/about')
