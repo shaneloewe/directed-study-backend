@@ -62,6 +62,7 @@ def getStats(userEmail):
 
 @app.route('/sentence/<userEmail>')
 def getSentence(userEmail):
+    print(userEmail)
     userLevel = get_userLevel(str(userEmail))
     word = get_word(userLevel)
     sentences = get_sentences(word, userLevel)
